@@ -1,5 +1,8 @@
 <style lang="less" scoped>
-    ::-webkit-scrollbar {width:0px}
+    ::-webkit-scrollbar {width:0px};
+    .t-c{
+        text-align: center;
+    };
     .container{
         padding: 0 15px;
         label{
@@ -18,44 +21,20 @@
         }
         .zzRowStyle{
             border-bottom: 1px solid #cbcac6;
+            display: flex;
             .zzXhColStyle{
-                text-align: center;
-                overflow: hidden
+                width: 130px;
+                overflow: hidden;
+                flex-grow: 1;
             }
         }
         .zzColStyle{
             padding-top: 5px;
             padding-bottom: 5px;
             height: 30px;
-            text-align: center;
+            width: 130px;
+            flex-grow:1;
             overflow: hidden;
-            .line{
-                width:40%;
-                height:3px;
-                /*background-color:red;*/
-                float:left;margin-top:9px;
-            }
-            .lineBackgroundPass{
-                background-color:red;
-            }
-            .lineBackgroundFail{
-                background-color:#cbcac6;
-            }
-            .ball{
-                width:20%;
-                height:17px;
-                border-radius:30px;
-                float:left;
-                margin-top:2px;
-                color:white;
-                text-align: center;
-            }
-            .ballBackgroundPass{
-                background-color:red;
-            }
-            .ballBackgroundFail{
-                background-color:#cbcac6;
-            }
         }
     }
 </style>
@@ -75,24 +54,17 @@
 
         <Card style=" margin-top: 15px;">
        <div class="ZZtable">
-           <Row class="zzRowStyle">
-               <Col :span="span" v-for="(item,index) in dataList.title" :key="index" :title="item.name" class="zzXhColStyle">
-                   {{item}}
-               </Col>
-           </Row>
-           <div class="ZZtable-ite" :style="{'min-height':minTableHeight,'max-height': maxTableHeight}">
-               <Row class="zzRowStyle" v-for="(ColList,index) in dataList.list" :key="index">
-                   <Col :span="span" v-for="(item,index) in ColList.ColList" :key='index' class="zzColStyle">
-                       <span v-if="typeof item.plan == 'undefined'" :title="item.name" style="text-align: center;padding:0 5px;">
-                          {{item.name}}
-                       </span>
-                       <div v-else :title="item.name">
-                           <div :class="[index != 3 && (item.plan == 1 ? 'lineBackgroundPass' : 'lineBackgroundFail') ,'line']" ></div>
-                           <div :class="[item.plan == 1 ? 'ballBackgroundPass' : 'ballBackgroundFail' ,'ball']">{{item.name}}</div>
-                           <div v-if="index != dataList.title.length - 2" :class="[item.plan == 1 ? 'lineBackgroundPass' : 'lineBackgroundFail','line']"></div>
-                       </div>
-                   </Col>
-               </Row>
+           <div class="zzRowStyle">
+               <div v-for="(item,index) in dataList.title" :key="index" :title="item.name" :class="[(index > 2 && index < dataList.title.length - 1) ? 't-c':'','zzXhColStyle']">
+                       {{item}}
+               </div>
+           </div>
+           <div class="ZZtable-ite" :style="{'height':tableHeight}">
+               <div class="zzRowStyle" v-for="(ColList,index) in dataList.list" :key="index">
+                   <div v-for="(item,index) in ColList.ColList" :key='index' class="zzColStyle">
+                       <JckbDataItem :item="item" :index="index" :dataList="dataList"></JckbDataItem>
+                   </div>
+               </div>
            </div>
            <Page :total='post.page.total' size="small" @on-change="PageOnChange" @on-page-size-change="onPageSizeChange" show-elevator show-sizer></Page>
        </div>
@@ -100,6 +72,7 @@
     </div>
 </template>
 <script>
+    import JckbDataItem from '../../../components/jckbDataItem.vue';
     export default {
         name: 'JiaoCheKanBan',
         data() {
@@ -116,8 +89,9 @@
                 gxcs:2,
                 jccs:24,
                 span:2,
-                maxTableHeight:'0px',
-                minTableHeight:'0px',
+                tableHeight:'0px',
+                // maxTableHeight:'0px',
+                // minTableHeight:'0px',
                 dataList:{
                     title:[
                         '车牌号',
@@ -148,42 +122,8 @@
                                     {name: '抛', plan: 1},
                                     {name: '检', plan: 1},
                                     {name: '完', plan: 0},
-                                    {name: "2018-06-16 10:15"},
+                                    {name: "2018/06/16"},
                                 ],
-                        },
-                        {
-                            id: 1,
-                            ColList:[
-                                {name: '京k88887'},
-                                {name: '玛莎拉蒂'},
-                                {name: '霍程程'},
-                                {name: '钣', plan: 1},
-                                {name: '底', plan: 1},
-                                {name: '中', plan: 1},
-                                {name: '喷', plan: 1},
-                                {name: '装', plan: 1},
-                                {name: '抛', plan: 1},
-                                {name: '检', plan: 0},
-                                {name: '完', plan: 0},
-                                {name: "2018-06-16 10:15"},
-                            ],
-                        },
-                        {
-                            id: 1,
-                            ColList:[
-                                {name: '京k88887'},
-                                {name: '玛莎拉蒂'},
-                                {name: '霍程程'},
-                                {name: '钣', plan: 1},
-                                {name: '底', plan: 1},
-                                {name: '中', plan: 1},
-                                {name: '喷', plan: 1},
-                                {name: '装', plan: 1},
-                                {name: '抛', plan: 1},
-                                {name: '检', plan: 1},
-                                {name: '完', plan: 0},
-                                {name: "2018-06-16 10:15"},
-                            ],
                         },
                     ]
                 }
@@ -191,8 +131,12 @@
         },
         created(){
             this.span = parseInt(24 / this.dataList.title.length);
-            this.maxTableHeight = (window.innerHeight || document.body.clientHeight) - 203 + 'px';
-            this.minTableHeight = (window.innerHeight || document.body.clientHeight) - 321 + 'px';
+            this.tableHeight = (window.innerHeight || document.body.clientHeight) - 321 + 'px';
+            // this.maxTableHeight = (window.innerHeight || document.body.clientHeight) - 203 + 'px';
+            // this.minTableHeight = (window.innerHeight || document.body.clientHeight) - 321 + 'px';
+        },
+        components: {
+            JckbDataItem
         },
         methods:{
             PageOnChange(num){
